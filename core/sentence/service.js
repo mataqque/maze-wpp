@@ -1,7 +1,7 @@
 const { HOST_SITE } = require('../../config');
 
 const sentenceRoute = async cel => {
-	const data = await fetch(`${HOST_SITE}/sentences/list`, {
+	const data = await fetch(`${HOST_SITE}/sentences/sentence`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',

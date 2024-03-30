@@ -76,6 +76,33 @@ async function scheduleCronJob(cel, interval) {
 	// return config;
 }
 
+const initCronJobs = async () => {
+	const response = await fetch(`${HOST_SITE}/users`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	})
+		.then(e => {
+			return e.json();
+		})
+		.catch(err => {
+			return { status: 400, message: 'error internal' };
+		});
+
+	if (response.length > 0) {
+		response.map(e => {
+			cronJobs[e.cel] = CronJob.schedule(e.interval, () => sendMessages(e.cel), {
+				scheduled: false,
+			});
+			cronJobs[e.cel].start();
+		});
+	}
+};
+initCronJobs();
+
+//////
+
 const flowListMaze = addKeyword('list').addAnswer('Consultando tu lista...', null, async (ctx, { flowDynamic, endFlow }) => {
 	let data = await listSentences(ctx.from);
 	if (data.status == 400) {
@@ -91,11 +118,11 @@ const flowListMaze = addKeyword('list').addAnswer('Consultando tu lista...', nul
 
 const flowMazeInterval = addKeyword('interval').addAnswer('ingresar el tiempo en minutos, tiempo minimo: 20', { capture: true }, async (ctx, { flowDynamic, fallBack }) => {
 	let minutes = parseInt(ctx.body);
-	let data = await scheduleCronJob(ctx.from, minutes);
-	return await flowDynamic([{ body: 'intervalo agregado' }]);
 	if (minutes < 20) {
 		fallBack();
 	} else {
+		let data = await scheduleCronJob(ctx.from, minutes);
+		return await flowDynamic([{ body: 'intervalo agregado' }]);
 	}
 });
 
