@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  app:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PORT: ${PORT}
+    ports:
+      - "3002:3002"  # You can adjust the port as needed
+    network_mode: "host"

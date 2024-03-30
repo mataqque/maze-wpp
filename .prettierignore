@@ -1,0 +1,7 @@
+dist
+package-lock.json
+.eslintrc.cjs
+.next
+node_modules
+/bot_sessions
+# src
