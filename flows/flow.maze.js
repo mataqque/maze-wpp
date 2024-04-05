@@ -77,27 +77,32 @@ async function scheduleCronJob(cel, interval) {
 }
 
 const initCronJobs = async () => {
-	const response = await fetch(`${HOST_SITE}/users`, {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	})
-		.then(e => {
-			return e.json();
+	let verifyConnection = setInterval(async () => {
+		const response = await fetch(`${HOST_SITE}/users`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
 		})
-		.catch(err => {
-			return { status: 400, message: 'error internal' };
-		});
-
-	if (response.length > 0) {
-		response.map(e => {
-			cronJobs[e.cel] = CronJob.schedule(e.interval, () => sendMessages(e.cel), {
-				scheduled: false,
+			.then(e => {
+				return e.json();
+			})
+			.catch(err => {
+				return { status: 400, message: 'error internal' };
 			});
-			cronJobs[e.cel].start();
-		});
-	}
+		console.log({ response });
+		if (response.length > 0) {
+			clearInterval(verifyConnection);
+			response.map(e => {
+				if (e.interval) {
+					cronJobs[e.cel] = CronJob.schedule(e.interval, () => sendMessages(e.cel), {
+						scheduled: false,
+					});
+					cronJobs[e.cel].start();
+				}
+			});
+		}
+	}, 1000);
 };
 initCronJobs();
 
