@@ -48,6 +48,7 @@ async function getCronJobConfig(cel, interval = null) {
 
 async function sendMessages(cel) {
 	const resData = await sentenceRoute(cel);
+	console.log(resData);
 	const message = `${resData.english}\n${resData.spanish}`;
 	const response = await fetch(`http://localhost:${PORT_EXPRESS_WPP}/sendMessage`, {
 		method: 'POST',
@@ -123,7 +124,7 @@ const flowListMaze = addKeyword('list').addAnswer('Consultando tu lista...', nul
 
 const flowMazeInterval = addKeyword('interval').addAnswer('ingresar el tiempo en minutos, tiempo minimo: 20', { capture: true }, async (ctx, { flowDynamic, fallBack }) => {
 	let minutes = parseInt(ctx.body);
-	if (minutes < 20) {
+	if (minutes < 0) {
 		fallBack();
 	} else {
 		let data = await scheduleCronJob(ctx.from, minutes);

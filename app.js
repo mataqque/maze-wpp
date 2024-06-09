@@ -10,7 +10,7 @@ const { flowInit } = require('./flows/init.flow');
 const { flowMazeAdd, flowHelpMaze, flowExample, flowFriend } = require('./flows/flow.maze');
 const messageSchema = require('./schema/messageSchema');
 const { pick } = require('lodash');
-const { PORT_EXPRESS_WPP } = require('./config');
+const { PORT_EXPRESS_WPP, HOST_SITE } = require('./config');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -55,5 +55,6 @@ createBot({
 app.post('/sendMessage', sendMessagesApi);
 
 // QRPortalWeb();
+
 const PORT = process.env.PORT_EXPRESS_WPP || PORT_EXPRESS_WPP;
-app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`express running on http://localhost:${PORT}`));
