@@ -18,10 +18,10 @@ app.use(express.urlencoded({ extended: false }));
 /**
  * Declaramos las conexiones de MySQL
  */
-const MYSQL_DB_HOST = 'localhost';
-const MYSQL_DB_USER = 'root';
-const MYSQL_DB_PASSWORD = 'root';
-const MYSQL_DB_NAME = 'bot';
+const MYSQL_DB_HOST = 'mysql-maze';
+const MYSQL_DB_USER = 'wpp_user';
+const MYSQL_DB_PASSWORD = 'BqPHKVCEkrn9NO1bl5TdO5r8gjrf36VAERfmg92I3ksCIkmh3a';
+const MYSQL_DB_NAME = 'maze';
 const MYSQL_DB_PORT = '3306';
 
 const adapterDB = new MySQLAdapter({

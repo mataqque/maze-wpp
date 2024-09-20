@@ -1,9 +1,20 @@
-FROM node:18-bullseye as bot
+FROM node:20.10-bullseye-slim as base
+
+RUN apt-get update && apt-get install -y \
+    bash \
+    net-tools 
+
 WORKDIR /app
-COPY package*.json ./
-RUN npm i
+
+RUN npm install -g --arch=x64 --platform=linux --libc=glibc sharp@0.33.0-rc.2
+RUN npm install --force @img/sharp-linux-x64
+COPY package.json yarn.lock ./
+
+RUN yarn install --frozen-lockfile
+
 COPY . .
-ARG RAILWAY_STATIC_URL
-ARG PUBLIC_URL
+
 ARG PORT
-CMD ["npm", "start"]
+EXPOSE 5002
+EXPOSE $PORT
+CMD ["yarn", "start"]

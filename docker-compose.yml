@@ -1,16 +1,69 @@
-version: '3.8'
-
 services:
-  app:
-    container_name: bot_english
-    restart: always
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-        - .:/app
-    environment:
-      PORT: ${PORT}
-    ports:
-      - "3002:3002"  # You can adjust the port as needed
-    network_mode: "host"
+    backup-maze:
+        image: databack/mysql-backup
+        restart: always
+        volumes:
+            - ./backup:/db
+        environment:
+            - DB_DUMP_TARGET=/db
+            - DB_USER=root
+            - DB_PASS=root
+            - DB_PORT=3306
+            - DB_DUMP_FREQ=1440
+            - DB_DUMP_BEGIN=+0
+            - DB_SERVER=mysql-maze
+            - DB_NAMES=maze
+        networks:
+            - network-maze
+        user: root
+        depends_on:
+            mysql-maze:
+                condition: service_healthy
+    app:
+        container_name: bot_english
+        restart: always
+        build:
+            context: .
+            dockerfile: Dockerfile
+        volumes:
+            - .:/app
+        environment:
+            PORT: ${PORT}
+        ports:
+            - '3002:3002'
+            - '5002:5002'
+        networks:
+            - network-maze
+
+    mysql-maze:
+        restart: always
+        image: mysql:8.0.36
+        environment:
+            MYSQL_ROOT_PASSWORD: pztMg1y02IY2ECwYUExWCwuwMIZNR8jyPItIsMNZSIoKgPyB6x
+            MYSQL_DATABASE: maze
+            MYSQL_USER: wpp_user
+            MYSQL_PASSWORD: BqPHKVCEkrn9NO1bl5TdO5r8gjrf36VAERfmg92I3ksCIkmh3a
+        volumes:
+            - mysql:/var/lib/mysql
+            - ./temp:/temp
+            - ./init.sql:/docker-entrypoint-initdb.d/a.sql
+            - ./temp/atlantis.sql:/docker-entrypoint-initdb.d/b.sql
+            - ./.my.cnf:/.my.cnf
+        # https://docs.docker.com/engine/network/packet-filtering-firewalls/#setting-the-default-bind-address-for-containers
+        # https://github.com/compose-spec/compose-spec/blob/main/spec.md#ports
+        ports:
+            - '127.0.0.1:3305:3306'
+        healthcheck:
+            test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+            interval: 5s
+            timeout: 5s
+            retries: 10
+        networks:
+            - network-maze
+
+networks:
+    network-maze:
+        driver: bridge
+
+volumes:
+    mysql:

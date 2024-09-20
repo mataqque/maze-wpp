@@ -1,0 +1,1 @@
+docker exec mysql-maze bash -c "mysqldump -u root -proot maze > /temp/maze.sql"
