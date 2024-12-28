@@ -89,9 +89,8 @@ const initCronJobs = async () => {
 				return e.json();
 			})
 			.catch(err => {
-				return { status: 400, message: 'error internal' };
+				return { status: 400, message: 'error' };
 			});
-		console.log({ response });
 		if (response.length > 0) {
 			clearInterval(verifyConnection);
 			response.map(e => {
@@ -103,7 +102,7 @@ const initCronJobs = async () => {
 				}
 			});
 		}
-	}, 1000);
+	}, 10000);
 };
 initCronJobs();
 
@@ -154,21 +153,29 @@ const flowMazeAdd = addKeyword(['add'])
 	.addAnswer('Estoy esperando la oración en ingles', { capture: true }, async (ctx, { flowDynamic }) => {
 		// await fakeHTTP();
 		MOCKDATA[ctx.from].english = ctx.body;
-		const response = await fetch(`${HOST_SITE}/sentences`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ data: [MOCKDATA[ctx.from]], cel: ctx.from }),
-		});
-		const data = await response.json();
-		console.log(data);
-		if (data.status == 200) {
-			flowDynamic([{ body: 'datos guardados' }]);
-		} else {
-			fallBack();
+		console.log(ctx);
+		try {
+			const response = await fetch(`${HOST_SITE}/sentences/create`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ data: [MOCKDATA[ctx.from]], cel: ctx.from, name: ctx.pushName }),
+			});
+			if (!response.ok) {
+				throw new Error(`Response status: ${response.status}`);
+			}
+			const data = await response.json();
+			if (data.status == 200) {
+				flowDynamic([{ body: 'datos guardados' }]);
+			} else {
+				fallBack();
+			}
+		} catch (error) {
+			console.error(error);
 		}
 	});
+
 const flowExample = addKeyword(['ex']).addAnswer('numero', { capture: true }, async (ctx, { flowDynamic }) => {});
 const flowHelpMaze = addKeyword(['ayuda'], { sensitive: true })
 	.addAnswer([

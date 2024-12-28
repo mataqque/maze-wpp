@@ -1,5 +1,25 @@
 services:
+    app_wpp:
+        container_name: bot_english
+        restart: always
+        build:
+            context: .
+            dockerfile: Dockerfile
+        volumes:
+            - .:/app
+        depends_on:
+            mysql-maze:
+                condition: service_healthy
+        environment:
+            PORT: ${PORT}
+        ports:
+            - '3002:3002'
+            - '5002:5002'
+        networks:
+            - network-maze
+
     backup-maze:
+        container_name: backup-maze_wpp
         image: databack/mysql-backup
         restart: always
         volumes:
@@ -19,24 +39,10 @@ services:
         depends_on:
             mysql-maze:
                 condition: service_healthy
-    app:
-        container_name: bot_english
-        restart: always
-        build:
-            context: .
-            dockerfile: Dockerfile
-        volumes:
-            - .:/app
-        environment:
-            PORT: ${PORT}
-        ports:
-            - '3002:3002'
-            - '5002:5002'
-        networks:
-            - network-maze
 
     mysql-maze:
         restart: always
+        container_name: maze-wpp-mysql
         image: mysql:8.0.36
         environment:
             MYSQL_ROOT_PASSWORD: pztMg1y02IY2ECwYUExWCwuwMIZNR8jyPItIsMNZSIoKgPyB6x
@@ -52,7 +58,7 @@ services:
         # https://docs.docker.com/engine/network/packet-filtering-firewalls/#setting-the-default-bind-address-for-containers
         # https://github.com/compose-spec/compose-spec/blob/main/spec.md#ports
         ports:
-            - '127.0.0.1:3305:3306'
+            - '127.0.0.1:3305:3305'
         healthcheck:
             test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
             interval: 5s
@@ -64,6 +70,7 @@ services:
 networks:
     network-maze:
         driver: bridge
+        external: true
 
 volumes:
     mysql:

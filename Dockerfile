@@ -2,7 +2,8 @@ FROM node:20.10-bullseye-slim as base
 
 RUN apt-get update && apt-get install -y \
     bash \
-    net-tools 
+    net-tools \ 
+    curl
 
 WORKDIR /app
 
